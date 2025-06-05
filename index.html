@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Resultados Negociación Locales</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    input, button {
+      padding: 10px;
+      margin: 5px 0;
+      width: 100%;
+    }
+    .resultado {
+      background: #f0f0f0;
+      padding: 15px;
+      margin-top: 20px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Consulta tu resultado de la negociación</h2>
+  <label for="rut">RUT (sin puntos, con guión):</label>
+  <input type="text" id="rut" placeholder="Ej: 12345678-9">
+
+  <label for="codigo">Código de seguridad (4 dígitos):</label>
+  <input type="number" id="codigo" placeholder="Ej: 1234">
+
+  <button onclick="buscarTrabajador()">Consultar</button>
+
+  <div id="resultado" class="resultado" style="display:none;"></div>
+
+  <script>
+    let trabajadores = [];
+
+    fetch('trabajadores_locales_completo_con_texto.json')
+      .then(res => res.json())
+      .then(data => trabajadores = data);
+
+    function buscarTrabajador() {
+      const rut = document.getElementById('rut').value.trim();
+      const codigo = parseInt(document.getElementById('codigo').value.trim());
+      const res = trabajadores.find(t => t.rut === rut && t.codigo === codigo);
+
+      const resultadoDiv = document.getElementById('resultado');
+
+      if (res) {
+        resultadoDiv.style.display = 'block';
+        resultadoDiv.innerHTML = `
+          <strong>${res.nombre}</strong><br>
+          Jornada: ${res.jornada} horas<br>
+          Antigüedad: ${res.antiguedad.toFixed(2)} años<br><br>
+          <strong>Nuevo Sueldo Base:</strong> $${res.sueldo_base.toLocaleString('es-CL')}<br>
+          <strong>Movilización:</strong> $${res.movilizacion.toLocaleString('es-CL')}<br>
+          <strong>Presentismo:</strong> $${res.presentismo.toLocaleString('es-CL')}<br>
+          <strong>Asignación de Caja:</strong> $${res.asig_caja.toLocaleString('es-CL')}<br>
+          <strong>Aguinaldo:</strong> ${res.aguinaldo}<br>
+          <strong>Vacaciones Verano:</strong> $${res.vacaciones_verano.toLocaleString('es-CL')}<br>
+          <strong>Vacaciones Invierno:</strong> $${res.vacaciones_invierno.toLocaleString('es-CL')}<br>
+        `;
+      } else {
+        resultadoDiv.style.display = 'block';
+        resultadoDiv.innerHTML = '<span style="color:red">Datos no encontrados. Verifica tu RUT y código.</span>';
+      }
+    }
+  </script>
+</body>
+</html>
